@@ -38,7 +38,7 @@ const Steps = ({ steps }: Props) => {
 
   return (
     <Wrapper bgColor={currentStep.bgColor}>
-      <span>{currentStep.description}</span>
+      <Description>{currentStep.description}</Description>
       {currentStep.id !== steps.length && showButton && (
         <Button
           onClick={() => setCurrentIndex(currentIndex + 1)}
@@ -65,6 +65,10 @@ const Wrapper = styled.div<{ bgColor?: string }>`
   span {
     text-shadow: 0.5px 0.5px #666;
   }
+`;
+
+const Description = styled.span`
+  margin-top: -40px;
 `;
 
 const Button = styled.button<{ fadeInButton?: boolean }>`
