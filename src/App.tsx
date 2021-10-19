@@ -5,18 +5,6 @@ import EditSteps from "./components/EditSteps";
 import Steps from "./components/Steps";
 import { uuidv4 } from "./utils/uuid";
 
-const newContainer = {
-  id: uuidv4(),
-  steps: [
-    {
-      id: uuidv4(),
-      description: "Step 1",
-      bgColor: "#2288bb",
-      delay: 200,
-    },
-  ],
-};
-
 function App() {
   const [editMode, setEditMode] = useState(false);
   const [stepsContainer, setStepsContainer] = useState<any>([]);

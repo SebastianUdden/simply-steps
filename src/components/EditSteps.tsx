@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { uuidv4 } from "../utils/uuid";
 import EditStep, { Step } from "./EditStep";
