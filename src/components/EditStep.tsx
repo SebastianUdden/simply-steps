@@ -117,7 +117,9 @@ const EditStep = ({
       <Button disabled={index === stepsLength - 1} onClick={handleMoveDown}>
         &darr;
       </Button>
-      <Button onClick={() => onDelete(id)}>&times;</Button>
+      <Button disabled={stepsLength < 2} onClick={() => onDelete(id)}>
+        &times;
+      </Button>
     </Wrapper>
   );
 };

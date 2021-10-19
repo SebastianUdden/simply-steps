@@ -5,48 +5,36 @@ import EditSteps from "./components/EditSteps";
 import Steps from "./components/Steps";
 import { uuidv4 } from "./utils/uuid";
 
-const MOCK_STEPS = [
-  {
-    id: uuidv4(),
-    name: "Morning routine",
-    steps: [
-      {
-        id: uuidv4(),
-        description: "Do mornin x",
-        bgColor: "#000000",
-        delay: 300,
-      },
-      { id: uuidv4(), description: "Do y", bgColor: "#ff9900", delay: 500 },
-    ],
-  },
-  {
-    id: uuidv4(),
-    name: "Night routine",
-    steps: [
-      {
-        id: uuidv4(),
-        description: "Do night z",
-        bgColor: "#66aa00",
-        delay: 200,
-      },
-      { id: uuidv4(), description: "Do y", bgColor: "#ff00ff", delay: 3400 },
-    ],
-  },
-];
-
 const newContainer = {
   id: uuidv4(),
-  name: "Example",
-  steps: [],
+  steps: [
+    {
+      id: uuidv4(),
+      description: "Step 1",
+      bgColor: "#2288bb",
+      delay: 200,
+    },
+  ],
 };
 
 function App() {
   const [editMode, setEditMode] = useState(false);
-  const [stepsContainer, setStepsContainer] = useState<any>(
-    JSON.parse(localStorage.getItem("steps") || "[]")
-  );
+  const [stepsContainer, setStepsContainer] = useState<any>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
+  const createNewContainer = (id: string, stepId: string) => {
+    return {
+      id,
+      steps: [
+        {
+          id: stepId,
+          description: "Step 1",
+          bgColor: "#2288bb",
+          delay: 200,
+        },
+      ],
+    };
+  };
   const onStepsChange = (stepsObject: any) => {
     setStepsContainer(
       stepsContainer.map((s: any) => {
@@ -56,8 +44,28 @@ function App() {
         return s;
       })
     );
-    localStorage.setItem("steps", JSON.stringify(stepsContainer));
   };
+  const onDeleteStepsObject = (id: string) => {
+    setSelectedIndex(0);
+    setStepsContainer(stepsContainer.filter((s: any) => s.id !== id));
+  };
+
+  useEffect(() => {
+    const storedStepsContainer = JSON.parse(
+      localStorage.getItem("stepsContainer") || "[]"
+    );
+    if (storedStepsContainer.length === 0) {
+      storedStepsContainer.push({
+        ...createNewContainer(uuidv4(), uuidv4()),
+        name: "Steps",
+      });
+    }
+    setStepsContainer(storedStepsContainer);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("stepsContainer", JSON.stringify(stepsContainer));
+  }, [stepsContainer]);
 
   return (
     <div className="App">
@@ -69,7 +77,16 @@ function App() {
       {editMode && (
         <>
           <Add
-            onClick={() => setStepsContainer([...stepsContainer, newContainer])}
+            onClick={() => {
+              setStepsContainer([
+                ...stepsContainer,
+                {
+                  ...createNewContainer(uuidv4(), uuidv4()),
+                  name: `Steps ${stepsContainer.length + 1}`,
+                },
+              ]);
+              setSelectedIndex(stepsContainer.length);
+            }}
           >
             +
           </Add>
@@ -79,6 +96,7 @@ function App() {
             selectedIndex={selectedIndex}
             stepsContainerLength={stepsContainer.length}
             onIndexChange={(index: number) => setSelectedIndex(index)}
+            onDeleteStepsObject={onDeleteStepsObject}
           />
         </>
       )}
