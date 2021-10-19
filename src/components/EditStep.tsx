@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 export interface Step {
-  id: number;
+  id: string;
   bgColor: string;
   description: string;
   delay: number;
@@ -31,10 +31,41 @@ const EditStep = ({
 }: Props) => {
   const [animateMoveUp, setAnimateMoveUp] = useState(false);
   const [animateMoveDown, setAnimateMoveDown] = useState(false);
-  const [value, setValue] = useState(description);
+  const [descriptionValue, setDescriptionValue] = useState(description);
   const [delayValue, setDelayValue] = useState(delay / 1000);
-  const [backgroundColor, setBackgroundColor] = useState(bgColor);
+  const [bgColorValue, setBgColorValue] = useState(bgColor);
   const colorId = `color-${id}`;
+
+  const handleBackgroundColorChange = (e: any) => {
+    setBgColorValue(e.target.value);
+    const step = {
+      id,
+      bgColor: e.target.value,
+      description: descriptionValue,
+      delay: delayValue * 1000,
+    };
+    onStepChange(step);
+  };
+  const handleDescriptionChange = (e: any) => {
+    setDescriptionValue(e.target.value);
+    const step = {
+      id,
+      bgColor: bgColorValue,
+      description: e.target.value,
+      delay: delayValue * 1000,
+    };
+    onStepChange(step);
+  };
+  const handleDelayValueChange = (e: any) => {
+    setDelayValue(Number(e.target.value));
+    const step = {
+      id,
+      bgColor: bgColorValue,
+      description: descriptionValue,
+      delay: Number(e.target.value) * 1000,
+    };
+    onStepChange(step);
+  };
 
   const handleMoveUp = () => {
     setAnimateMoveUp(true);
@@ -53,35 +84,30 @@ const EditStep = ({
   };
 
   useEffect(() => {
-    const step = {
-      id,
-      bgColor: backgroundColor,
-      description: value,
-      delay: delayValue * 1000,
-    };
-    onStepChange(step);
-    // eslint-disable-next-line
-  }, [id, value, backgroundColor, delayValue]);
+    setBgColorValue(bgColor);
+    setDelayValue(delay / 1000);
+    setDescriptionValue(description);
+  }, [id, bgColor, delay, description]);
 
   return (
     <Wrapper
-      bgColor={backgroundColor}
+      bgColor={bgColorValue}
       animateMoveUp={animateMoveUp}
       animateMoveDown={animateMoveDown}
     >
       <ColorPicker
         id={colorId}
         type="color"
-        onChange={(e) => setBackgroundColor(e.target.value)}
-        value={backgroundColor}
+        onChange={handleBackgroundColorChange}
+        value={bgColorValue}
       />
-      <Input onChange={(e) => setValue(e.target.value)} value={value} />
+      <Input onChange={handleDescriptionChange} value={descriptionValue} />
       <Range
         type="range"
         min="0"
         max="120"
         step="0.1"
-        onChange={(e) => setDelayValue(Number(e.target.value))}
+        onChange={handleDelayValueChange}
         value={delayValue}
       />
       <RangeValue>{delayValue}s</RangeValue>

@@ -2,50 +2,69 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 const initialStep = {
-  id: 0,
+  id: "0",
   bgColor: "#444",
   description: "Loading",
   delay: 300,
 };
 
 interface Props {
-  steps: any[];
+  steps: any;
 }
 
 const Steps = ({ steps }: Props) => {
+  const [showTitle, setShowTitle] = useState(true);
+  const [fadeTitle, setFadeTitle] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [currentStep, setCurrentStep] = useState(initialStep);
+  const [currentStep, setCurrentStep] = useState<any>(initialStep);
   const [showButton, setShowButton] = useState(false);
   const [fadeInButton, setFadeInButton] = useState(false);
 
   useEffect(() => {
-    setCurrentStep(steps[currentIndex]);
+    setTimeout(() => {
+      setFadeTitle(true);
+    }, 500);
+    setTimeout(() => {
+      setShowTitle(false);
+    }, 4000);
+  }, []);
+
+  useEffect(() => {
+    if (!steps) return;
+    setCurrentStep(steps?.steps[currentIndex]);
   }, [steps, currentIndex]);
 
   useEffect(() => {
-    if (currentStep.id === 0) return;
+    if (currentStep?.id === "0") return;
     setShowButton(false);
     setFadeInButton(false);
     setTimeout(() => {
       setShowButton(true);
-    }, currentStep.delay);
+    }, currentStep?.delay);
     setTimeout(() => {
       setFadeInButton(true);
-    }, currentStep.delay + 300);
+    }, currentStep?.delay + 300);
   }, [currentStep]);
 
+  if (!steps) return null;
   if (!currentStep) return null;
 
   return (
     <Wrapper bgColor={currentStep.bgColor}>
-      <Description>{currentStep.description}</Description>
-      {currentStep.id !== steps.length && showButton && (
-        <Button
-          onClick={() => setCurrentIndex(currentIndex + 1)}
-          fadeInButton={fadeInButton}
-        >
-          Done
-        </Button>
+      {showTitle ? (
+        <Title fadeTitle={fadeTitle}>{steps.name}</Title>
+      ) : (
+        <>
+          <Description>{currentStep.description}</Description>
+          {currentIndex !== steps?.steps?.length - 1 && showButton && (
+            <Button
+              onClick={() => setCurrentIndex(currentIndex + 1)}
+              fadeInButton={fadeInButton}
+            >
+              Done
+            </Button>
+          )}
+        </>
       )}
     </Wrapper>
   );
@@ -65,6 +84,10 @@ const Wrapper = styled.div<{ bgColor?: string }>`
   span {
     text-shadow: 0.5px 0.5px #666;
   }
+`;
+const Title = styled.h1<{ fadeTitle: boolean }>`
+  opacity: ${(p) => (p.fadeTitle ? "0" : "1")};
+  transition: opacity 2500ms linear;
 `;
 
 const Description = styled.span`

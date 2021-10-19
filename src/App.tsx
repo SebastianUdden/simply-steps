@@ -1,92 +1,93 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import "./App.css";
-import { Step } from "./components/EditStep";
 import EditSteps from "./components/EditSteps";
 import Steps from "./components/Steps";
+import { uuidv4 } from "./utils/uuid";
 
-const arrayMove = (arr: any[], fromIndex: number, toIndex: number) => {
-  const arrCopy = arr.slice();
-  const element = arrCopy[fromIndex];
-  arrCopy.splice(fromIndex, 1);
-  arrCopy.splice(toIndex, 0, element);
-  return arrCopy;
+const MOCK_STEPS = [
+  {
+    id: uuidv4(),
+    name: "Morning routine",
+    steps: [
+      {
+        id: uuidv4(),
+        description: "Do mornin x",
+        bgColor: "#000000",
+        delay: 300,
+      },
+      { id: uuidv4(), description: "Do y", bgColor: "#ff9900", delay: 500 },
+    ],
+  },
+  {
+    id: uuidv4(),
+    name: "Night routine",
+    steps: [
+      {
+        id: uuidv4(),
+        description: "Do night z",
+        bgColor: "#66aa00",
+        delay: 200,
+      },
+      { id: uuidv4(), description: "Do y", bgColor: "#ff00ff", delay: 3400 },
+    ],
+  },
+];
+
+const newContainer = {
+  id: uuidv4(),
+  name: "Example",
+  steps: [],
 };
 
 function App() {
   const [editMode, setEditMode] = useState(false);
-  const [steps, setSteps] = useState(
+  const [stepsContainer, setStepsContainer] = useState<any>(
     JSON.parse(localStorage.getItem("steps") || "[]")
   );
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
-  useEffect(() => {
-    localStorage.setItem("steps", JSON.stringify(steps));
-    if (steps.length === 0) setEditMode(true);
-  }, [steps]);
-
-  const handleDelete = (id: number) => {
-    const newSteps = steps.filter((s: any) => s.id !== id);
-    setSteps(newSteps);
-  };
-
-  const handleMoveUp = (id: number) => {
-    const index = steps.findIndex((s: any) => s.id === id);
-    if (index === 0 || index === -1) return;
-    setSteps(arrayMove(steps, index, index - 1));
-  };
-  const handleMoveDown = (id: number) => {
-    const index = steps.findIndex((s: any) => s.id === id);
-    if (index === steps.length - 1 || index === -1) return;
-    setSteps(arrayMove(steps, index, index + 1));
-  };
-  const onStepChange = (step: Step) => {
-    setSteps(
-      steps.map((s: Step) => {
-        if (s.id !== step.id) return s;
-        return step;
+  const onStepsChange = (stepsObject: any) => {
+    setStepsContainer(
+      stepsContainer.map((s: any) => {
+        if (s.id === stepsObject.id) {
+          return stepsObject;
+        }
+        return s;
       })
     );
+    localStorage.setItem("steps", JSON.stringify(stepsContainer));
   };
 
   return (
     <div className="App">
-      {steps.length !== 0 && (
+      {
         <Button onClick={() => setEditMode(!editMode)}>
-          {editMode ? "Steps" : "Edit"}
+          {editMode ? "Steps" : "Menu"}
         </Button>
-      )}
+      }
       {editMode && (
         <>
-          <AddStep
-            onClick={() =>
-              setSteps([
-                ...steps,
-                {
-                  id: steps.length + 1,
-                  description: "",
-                  bgColor: "#20acb6",
-                  delay: 300,
-                },
-              ])
-            }
+          <Add
+            onClick={() => setStepsContainer([...stepsContainer, newContainer])}
           >
-            Add step
-          </AddStep>
+            +
+          </Add>
           <EditSteps
-            steps={steps}
-            onMoveUp={handleMoveUp}
-            onMoveDown={handleMoveDown}
-            onDelete={handleDelete}
-            onStepChange={onStepChange}
+            stepsObject={stepsContainer[selectedIndex]}
+            onStepsChange={onStepsChange}
+            selectedIndex={selectedIndex}
+            stepsContainerLength={stepsContainer.length}
+            onIndexChange={(index: number) => setSelectedIndex(index)}
           />
         </>
       )}
-      {!editMode && <Steps steps={steps} />}
+      {!editMode && <Steps steps={stepsContainer[selectedIndex]} />}
     </div>
   );
 }
 
-const Button = styled.button`
+export const Button = styled.button`
   position: absolute;
   right: 5px;
   top: 5px;
@@ -99,11 +100,9 @@ const Button = styled.button`
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   z-index: 1;
 `;
-const AddStep = styled(Button)`
-  position: static;
-  font-size: 20px;
-  margin-top: 40px;
-  width: calc(100% - 10px);
+const Add = styled(Button)`
+  left: 5px;
+  right: auto;
 `;
 
 export default App;
